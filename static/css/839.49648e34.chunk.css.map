@@ -1,0 +1,1 @@
+{"version":3,"file":"static/css/839.49648e34.chunk.css","mappings":"AACA,sBACA,iBAAkB,CAClB,UACA,CAEA,2BACA,eAAiB,CACjB,iBACA","sources":["components/Usermenu/Usermenu.module.css"],"sourcesContent":["\n.user {\nposition: absolute;\nright: 20px;\n}\n\n.userName {\nfont-weight: bold;\nmargin-right: 30px;\n}\n\n"],"names":[],"sourceRoot":""}
