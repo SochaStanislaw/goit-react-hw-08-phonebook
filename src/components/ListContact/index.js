@@ -1,1 +1,0 @@
-export { ListContact } from './ListContact';

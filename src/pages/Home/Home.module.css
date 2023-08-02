@@ -1,0 +1,10 @@
+.wrap {
+  display: flex;
+  justify-content: center;
+}
+
+.span {
+color: white;
+font-weight: bold;
+text-decoration: none;
+}

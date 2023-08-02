@@ -1,59 +1,61 @@
-import React, { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchContacts, addContact, deleteContact } from '../redux/operations';
-import { setFilter } from '../redux/filterSlice';
-import { NewContact } from './NewContact';
-import { ListContact } from './ListContact';
-import { FilterContact } from './FilterContact';
+import { useEffect, Suspense, lazy } from 'react';
+import { useDispatch } from 'react-redux';
+import { Routes, Route } from 'react-router-dom';
+// components:
+import { Loader } from './Loader/loader';
+import { Footer } from './Footer/footer';
+// hooks:
+import { useAuth } from 'hooks';
+// operation:
+import { refreshUser } from 'redux/auth/operations';
+
+import { RestrictedRoute } from './RestrictedRoute';
+import { PrivateRoute } from './PrivateRoute';
+
+
+const Navigation = lazy(() => import('./Navigation/Navigation'));
+const Home = lazy(() => import('pages/Home/Home'));
+const Login = lazy(() => import('pages/Login/Login'));
+const Phonebook = lazy(() => import('pages/Phonebook/Phonebook'));
+const Register = lazy(() => import('pages/Register/Register'));
 
 export const App = () => {
   const dispatch = useDispatch();
-  const contacts = useSelector((state) => state.contacts);
-  const filter = useSelector((state) => state.filter);
-
+  const { isRefreshing } = useAuth();
   useEffect(() => {
-    dispatch(fetchContacts());
+    dispatch(refreshUser());
   }, [dispatch]);
-
-  const addNewContact = ({ name, number }) => {
-    const contactExists = contacts.find((contact) => contact.name === name);
-
-    if (contactExists) {
-      alert(`Homie "${name}" already exists in your contact list!`);
-    } else {
-      dispatch(addContact({ name, number }));
-    }
-  };
-
-  const removeExistingContact = (id) => {
-    dispatch(deleteContact(id));
-  };
-
-  const changeFilter = e => {
-    dispatch(setFilter(e.target.value));
-  };
-
-  const showFilterContacts = () => {
-    const makeLowerCase = filter.toLowerCase();
-
-    return contacts.filter((contact) =>
-      contact.name.toLowerCase().includes(makeLowerCase)
-    );
-  };
-
-  return (
-    <div>
-      <p>Your best contact's list:</p>
-      <p>Type data and click button to add a new contact to your list.</p>
-      <NewContact onSubmit={addNewContact} />
-      <p>Can't find your contact? Type name below:</p>
-      <FilterContact value={filter} onChange={changeFilter} />
-      <p>Your contact list:</p>
-      <ListContact
-        contacts={showFilterContacts()}
-        removeContact={removeExistingContact}
-      />
-    </div>
+  return isRefreshing ? (
+    <Loader />
+  ) : (
+    <Suspense fallback={<Loader />}>
+      <Routes>
+        <Route path="/" element={<Navigation />}>
+          <Route index element={<Home />} />
+          <Route
+            path="/register"
+            element={
+              <RestrictedRoute
+                redirectTo="/contacts"
+                component={<Register />}
+              />
+            }
+          />
+          <Route
+            path="/login"
+            element={
+              <RestrictedRoute redirectTo="/contacts" component={<Login />} />
+            }
+          />
+          <Route
+            path="/contacts"
+            element={
+              <PrivateRoute redirectTo="/login" component={<Phonebook />} />
+            }
+          />
+        </Route>
+      </Routes>
+      <Footer></Footer>
+    </Suspense>
   );
 };
-
